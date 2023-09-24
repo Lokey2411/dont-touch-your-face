@@ -23,7 +23,7 @@ function App() {
 	const mobilenet = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
-	const [showWaringModal, setShowWaringModal] = useState(false);
+	const showWaringModal = isTouch;
 	const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 	const training = (label) => {
 		return new Promise(async (resolve) => {
@@ -47,7 +47,6 @@ function App() {
 		console.log("label:", result.label);
 		if (result.label === TOUCH_LABEL && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE) {
 			setIsTouch(true);
-			setShowWaringModal(true);
 			sound.play();
 		} else {
 			setIsTouch(false);
@@ -131,7 +130,7 @@ function App() {
 					Now you can run here
 				</button>
 			</div>
-			{showWaringModal && <div className="">{ERROR_MESSAGE}</div>}
+			{isTouch && <img src="./assets/warning.png" />}
 		</div>
 	);
 }
