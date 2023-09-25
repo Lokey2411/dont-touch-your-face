@@ -33,3 +33,6 @@
 .main.touch {
 	background-color: red;
 }
+.hide {
+	display: none;
+}

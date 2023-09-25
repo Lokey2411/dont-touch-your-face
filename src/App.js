@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
 import { Howl } from "howler";
 import heySound from "./assets/hey_sondn.mp3";
@@ -23,6 +23,7 @@ function App() {
 	const mobilenet = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
+
 	const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 	const training = (label) => {
 		return new Promise(async (resolve) => {
@@ -38,20 +39,26 @@ function App() {
 			console.log(`progress ${((i + 1) / TRAINING_TIME) * 100}%`);
 			await training(label);
 		}
+		if (label === TOUCH_LABEL) {
+			console.log(label === TOUCH_LABEL);
+		} else if (label === NOT_TOUCH_LABEL) {
+		}
+		console.log("máy đã học xong");
 	};
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
 
 		const result = await classifier.predictClass(embedding);
 		console.log("label:", result.label);
-		if (result.label === TOUCH_LABEL && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE) {
-			setIsTouch(true);
+		const isTouch = result.label === TOUCH_LABEL && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE;
+		setIsTouch(isTouch);
+		if (isTouch) {
+			// showModal("error");
 			sound.play();
-		} else {
-			setIsTouch(false);
 		}
-		await sleep(200);
-		run();
+
+		await sleep(1000);
+		await run();
 	};
 	const setupCamera = async () => {
 		return new Promise((resolve, reject) => {
@@ -73,26 +80,23 @@ function App() {
 	const loadModel = async () => {
 		try {
 			tf.loadLayersModel();
+			await sleep(1000);
 			mobilenet.current = await mobilenetModule.load();
-			console.log("setup done");
-			console.log("Cấm chạm tay lên mặt và bấm train1");
+			alert("thành công nhận diện");
+			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
 		} catch (error) {
-			console.error("Error loading model or Mobilenet:", error);
+			console.error(error);
 		}
 	};
-
-	useEffect(() => {
+	document.body.onload = async () => {
 		//clean up
-		const initApp = async () => {
-			console.log("init");
-			setupCamera()
-				.then(async () => {
-					await loadModel();
-				})
-				.catch((error) => console.log(error));
-		};
-		return initApp;
-	});
+		console.log("init");
+		setupCamera()
+			.then(async () => {
+				await loadModel();
+			})
+			.catch((error) => console.log(error));
+	};
 	return (
 		<div className={`main ${isTouch && "touched"}`}>
 			<video
@@ -133,6 +137,11 @@ function App() {
 				<img
 					src="./assets/warning.png"
 					alt={ERROR_MESSAGE}
+					id="error"
+					style={{
+						display: "block",
+						width: "50%",
+					}}
 				/>
 			)}
 		</div>
