@@ -23,7 +23,6 @@ function App() {
 	const mobilenet = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
-	const showWaringModal = isTouch;
 	const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 	const training = (label) => {
 		return new Promise(async (resolve) => {
@@ -40,7 +39,7 @@ function App() {
 			await training(label);
 		}
 	};
-	const run = async (label) => {
+	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
 
 		const result = await classifier.predictClass(embedding);
@@ -130,7 +129,12 @@ function App() {
 					Now you can run here
 				</button>
 			</div>
-			{isTouch && <img src="./assets/warning.png" />}
+			{isTouch && (
+				<img
+					src="./assets/warning.png"
+					alt={ERROR_MESSAGE}
+				/>
+			)}
 		</div>
 	);
 }
