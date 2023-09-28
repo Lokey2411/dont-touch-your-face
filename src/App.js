@@ -21,6 +21,7 @@ const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cườ
 function App() {
 	const video = useRef();
 	const mobilenet = useRef();
+	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
 
@@ -36,8 +37,10 @@ function App() {
 	const train = async (label) => {
 		console.log(`[${label} đang check với gương mặt đẹp trai của bạn]`);
 		for (let i = 0; i < TRAINING_TIME; i++) {
-			console.log(`progress ${((i + 1) / TRAINING_TIME) * 100}%`);
+			console.log(`progress ${progress.current.value} * 100}%`);
 			await training(label);
+			progress.current.value = ((i + 1) * 100) / TRAINING_TIME;
+			// setProgress(((i + 1) / TRAINING_TIME) * 100);
 		}
 		if (label === TOUCH_LABEL) {
 			console.log(label === TOUCH_LABEL);
@@ -80,7 +83,6 @@ function App() {
 	const loadModel = async () => {
 		try {
 			tf.loadLayersModel();
-			await sleep(1000);
 			mobilenet.current = await mobilenetModule.load();
 			alert("thành công nhận diện");
 			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
@@ -89,7 +91,6 @@ function App() {
 		}
 	};
 	document.body.onload = async () => {
-		//clean up
 		console.log("init");
 		setupCamera()
 			.then(async () => {
@@ -112,7 +113,7 @@ function App() {
 						await train(NOT_TOUCH_LABEL);
 					}}
 				>
-					Don't touch your face and click here to make app can learn
+					Không chạm lên mặt để app đọc chuyển động của bạn
 				</button>
 				<button
 					className="btn"
@@ -121,29 +122,41 @@ function App() {
 						await train(TOUCH_LABEL);
 					}}
 				>
-					Touch your face and click here to make app can learn
+					Chạm tay lên mặt để app đọc chuyển động của bạn
 				</button>
 				<button
 					className="btn"
 					id="js-run"
 					onClick={() => {
-						run();
+						run().catch((error) => {
+							alert("Máy chưa được học, hãy để cho máy học rồi mới chạy");
+							console.log(error);
+						});
 					}}
 				>
-					Now you can run here
+					Chạy ở đây
 				</button>
 			</div>
 			{isTouch && (
-				<img
-					src="./assets/warning.png"
-					alt={ERROR_MESSAGE}
-					id="error"
-					style={{
-						display: "block",
-						width: "50%",
-					}}
-				/>
+				<div className="modal">
+					<img
+						src="./assets/warning.png"
+						alt={ERROR_MESSAGE}
+						id="error"
+						style={{
+							width: "20%",
+						}}
+					/>
+				</div>
 			)}
+			<progress
+				max="100"
+				style={{
+					height: 50,
+					width: "20%",
+				}}
+				ref={progress}
+			></progress>
 		</div>
 	);
 }
