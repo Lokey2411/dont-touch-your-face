@@ -14,7 +14,7 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 50;
+const TRAINING_TIME = 1000;
 const TOUCH_CONFIDENCE = 0.8;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 
@@ -29,6 +29,7 @@ function App() {
 	const training = (label) => {
 		return new Promise(async (resolve) => {
 			const embedding = mobilenet.current.infer(video.current, true);
+			console.log(embedding);
 			classifier.addExample(embedding, label);
 			await sleep(100);
 			resolve();
@@ -50,17 +51,19 @@ function App() {
 	};
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
-
+		// const accuracy = await testAccuracy
 		const result = await classifier.predictClass(embedding);
-		console.log("label:", result.label);
-		const isTouch = result.label === TOUCH_LABEL && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE;
-		setIsTouch(isTouch);
+		console.log(result.confidences);
+		const isTouch = result.label === TOUCH_LABEL;
+		const dataset = classifier.getClassifierDataset();
+		console.log(dataset);
+		// && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE;
+		setIsTouch(isTouch[result.label]);
 		if (isTouch) {
-			// showModal("error");
 			sound.play();
 		}
 
-		await sleep(1000);
+		await sleep(5000);
 		await run();
 	};
 	const setupCamera = async () => {
@@ -83,7 +86,9 @@ function App() {
 	const loadModel = async () => {
 		try {
 			tf.loadLayersModel();
-			mobilenet.current = await mobilenetModule.load();
+			sleep(100).then(async () => {
+				mobilenet.current = await mobilenetModule.load();
+			});
 			alert("thành công nhận diện");
 			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
 		} catch (error) {
