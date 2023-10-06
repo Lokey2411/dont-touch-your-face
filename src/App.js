@@ -14,10 +14,10 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 1000;
+const TRAINING_TIME = 50;
 const TOUCH_CONFIDENCE = 0.8;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
-
+let dataset = [];
 function App() {
 	const video = useRef();
 	const mobilenet = useRef();
@@ -29,8 +29,8 @@ function App() {
 	const training = (label) => {
 		return new Promise(async (resolve) => {
 			const embedding = mobilenet.current.infer(video.current, true);
-			console.log(embedding);
 			classifier.addExample(embedding, label);
+			dataset.push({ image: video.current, label });
 			await sleep(100);
 			resolve();
 		});
@@ -43,27 +43,34 @@ function App() {
 			progress.current.value = ((i + 1) * 100) / TRAINING_TIME;
 			// setProgress(((i + 1) / TRAINING_TIME) * 100);
 		}
-		if (label === TOUCH_LABEL) {
-			console.log(label === TOUCH_LABEL);
-		} else if (label === NOT_TOUCH_LABEL) {
-		}
 		console.log("máy đã học xong");
+	};
+	const calculateAccuracy = async () => {
+		let numCorrect = 0;
+		for (let i = 0; i < dataset.length; i++) {
+			const example = dataset[i];
+			const embedding = mobilenet.current.infer(example.image, true);
+			// console.log(example);
+			const result = await classifier.predictClass(embedding);
+			console.log(result);
+			if (result.label === example.label) {
+				numCorrect++;
+			}
+		}
+		console.log(numCorrect);
+		const accuracy = (numCorrect / dataset.length) * 100;
+		console.log(`Độ chính xác: ${accuracy.toFixed(2)}%`);
 	};
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
-		// const accuracy = await testAccuracy
 		const result = await classifier.predictClass(embedding);
 		console.log(result.confidences);
 		const isTouch = result.label === TOUCH_LABEL;
-		const dataset = classifier.getClassifierDataset();
-		console.log(dataset);
-		// && result.confidences && result.confidences[result.label] > TOUCH_CONFIDENCE;
-		setIsTouch(isTouch[result.label]);
+		setIsTouch(isTouch);
 		if (isTouch) {
 			sound.play();
 		}
-
-		await sleep(5000);
+		await sleep(2000);
 		await run();
 	};
 	const setupCamera = async () => {
@@ -86,9 +93,7 @@ function App() {
 	const loadModel = async () => {
 		try {
 			tf.loadLayersModel();
-			sleep(100).then(async () => {
-				mobilenet.current = await mobilenetModule.load();
-			});
+			mobilenet.current = await mobilenetModule.load();
 			alert("thành công nhận diện");
 			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
 		} catch (error) {
@@ -141,6 +146,12 @@ function App() {
 				>
 					Chạy ở đây
 				</button>
+				<button
+					onClick={() => calculateAccuracy()}
+					className="btn"
+				>
+					Lấy đọ chính xác
+				</button>
 			</div>
 			{isTouch && (
 				<div className="modal">
@@ -159,6 +170,8 @@ function App() {
 				style={{
 					height: 50,
 					width: "20%",
+					position: "absolute",
+					bottom: 0,
 				}}
 				ref={progress}
 			></progress>
