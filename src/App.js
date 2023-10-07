@@ -14,7 +14,7 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 50;
+const TRAINING_TIME = 200;
 const TOUCH_CONFIDENCE = 0.8;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 let dataset = [];
@@ -51,16 +51,19 @@ function App() {
 			return;
 		}
 		let numCorrect = 0;
-		for (let i = 0; i < dataset.length; i++) {
+		const numExample = dataset.length;
+		for (let i = 0; i < numExample; i++) {
 			const example = dataset[i];
+			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
 			const result = await classifier.predictClass(embedding).catch((error) => console.log(error));
+			console.log(result);
 			if (result.label === example.label) {
 				numCorrect++;
 			}
 		}
 		console.log(numCorrect);
-		const accuracy = (numCorrect / dataset.length) * 100;
+		const accuracy = (numCorrect / numExample) * 100;
 		console.log(`Độ chính xác: ${accuracy.toFixed(2)}%`);
 	};
 	const run = async () => {
