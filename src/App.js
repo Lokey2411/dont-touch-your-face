@@ -30,7 +30,7 @@ function App() {
 		return new Promise(async (resolve) => {
 			const embedding = mobilenet.current.infer(video.current, true);
 			classifier.addExample(embedding, label);
-			dataset.push({ image: video.current, label });
+			dataset = [...dataset, { image: video.current, label }];
 			await sleep(100);
 			resolve();
 		});
@@ -46,13 +46,15 @@ function App() {
 		console.log("máy đã học xong");
 	};
 	const calculateAccuracy = async () => {
+		if (dataset.length === 0) {
+			console.log("Chưa có dataset");
+			return;
+		}
 		let numCorrect = 0;
 		for (let i = 0; i < dataset.length; i++) {
 			const example = dataset[i];
 			const embedding = mobilenet.current.infer(example.image, true);
-			// console.log(example);
-			const result = await classifier.predictClass(embedding);
-			console.log(result);
+			const result = await classifier.predictClass(embedding).catch((error) => console.log(error));
 			if (result.label === example.label) {
 				numCorrect++;
 			}
