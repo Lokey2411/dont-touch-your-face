@@ -38,7 +38,7 @@ function App() {
 	const train = async (label) => {
 		console.log(`[${label} đang check với gương mặt đẹp trai của bạn]`);
 		for (let i = 0; i < TRAINING_TIME; i++) {
-			console.log(`progress ${progress.current.value} * 100}%`);
+			console.log(`progress ${progress.current.value} %`);
 			await training(label);
 			progress.current.value = ((i + 1) * 100) / TRAINING_TIME;
 			// setProgress(((i + 1) / TRAINING_TIME) * 100);
@@ -47,16 +47,18 @@ function App() {
 	};
 	const calculateAccuracy = async () => {
 		if (dataset.length === 0) {
+			//nếu chưa có dataset thì dừng hàm
 			console.log("Chưa có dataset");
 			return;
 		}
+		const k = Math.floor(Math.random() * 95) + 5;
 		let numCorrect = 0;
 		const numExample = dataset.length;
 		for (let i = 0; i < numExample; i++) {
 			const example = dataset[i];
 			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
-			const result = await classifier.predictClass(embedding).catch((error) => console.log(error));
+			const result = await classifier.predictClass(embedding, k).catch((error) => console.log(error));
 			console.log(result);
 			if (result.label === example.label) {
 				numCorrect++;
@@ -64,7 +66,7 @@ function App() {
 		}
 		console.log(numCorrect);
 		const accuracy = (numCorrect / numExample) * 100;
-		console.log(`Độ chính xác: ${accuracy.toFixed(2)}%`);
+		console.log(`Với k = ${k} , thuật toán có độ chính xác: ${accuracy.toFixed(2)}%`);
 	};
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
