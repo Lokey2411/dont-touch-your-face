@@ -15,8 +15,8 @@ const sound = new Howl({
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
 const TRAINING_TIME = 200;
-const TOUCH_CONFIDENCE = 0.8;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
+const NUM_NEIGHBOR = 62;
 let dataset = [];
 function App() {
 	const video = useRef();
@@ -51,14 +51,13 @@ function App() {
 			console.log("Chưa có dataset");
 			return;
 		}
-		const k = Math.floor(Math.random() * 95) + 5;
 		let numCorrect = 0;
 		const numExample = dataset.length;
 		for (let i = 0; i < numExample; i++) {
 			const example = dataset[i];
 			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
-			const result = await classifier.predictClass(embedding, k).catch((error) => console.log(error));
+			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR).catch((error) => console.log(error));
 			console.log(result);
 			if (result.label === example.label) {
 				numCorrect++;
@@ -66,11 +65,11 @@ function App() {
 		}
 		console.log(numCorrect);
 		const accuracy = (numCorrect / numExample) * 100;
-		console.log(`Với k = ${k} , thuật toán có độ chính xác: ${accuracy.toFixed(2)}%`);
+		console.log(`Với k = ${NUM_NEIGHBOR} , thuật toán có độ chính xác: ${accuracy.toFixed(2)}%`);
 	};
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
-		const result = await classifier.predictClass(embedding);
+		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
 		console.log(result.confidences);
 		const isTouch = result.label === TOUCH_LABEL;
 		setIsTouch(isTouch);
