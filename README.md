@@ -70,7 +70,7 @@ Xin vinh danh những cá nhân sau với những đóng góp to lớn đã mang
 
 - Thành viên **HÀ HẢI VIỆT** đã có đóng góp lớn trong việc thực hiện quá trình lập trình hệ thống.
 
-- Thành viên **NGUYỄN VIỆT ANH** đã đóng góp trong quá trình lập trình và kiểm thử dự án.
+- Thành viên **NGUYỄN VIỆT ANH** đã đóng góp trong quá trình lập trình, kiểm thử và tối ưu hóa dự án.
 
 - Thành viên **TRẦN QUÝ ĐỨC** đã phân tích, đánh giá, theo dõi kiểm thử và xây dựng các phương án phát triển.
 
