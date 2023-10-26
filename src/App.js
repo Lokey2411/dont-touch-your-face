@@ -15,7 +15,7 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 10;
+const TRAINING_TIME = 200;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 const NUM_NEIGHBOR = 62;
 let dataset = [];
@@ -89,21 +89,17 @@ function App() {
 	};
 
 	const run = async () => {
-		const loop = async () => {
-			const embedding = mobilenet.current.infer(video.current, true);
-			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
-			await drawImagePoint();
-			console.log(result.confidences);
-			const isTouch = result.label === TOUCH_LABEL;
-			setIsTouch(isTouch);
-			if (isTouch) {
-				sound.play();
-			}
-			await sleep(1000);
-			requestAnimationFrame(loop);
-		};
+		const embedding = mobilenet.current.infer(video.current, true);
+		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
+		await drawImagePoint();
+		console.log(result.confidences);
+		const isTouch = result.label === TOUCH_LABEL;
+		setIsTouch(isTouch);
+		if (isTouch) {
+			sound.play();
+		}
 		await sleep(1000);
-		loop();
+		run();
 	};
 
 	const setupCamera = async () => {
