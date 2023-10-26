@@ -5,6 +5,7 @@ import heySound from "./assets/hey_sondn.mp3";
 import * as knnClassifier from "@tensorflow-models/knn-classifier";
 import * as mobilenetModule from "@tensorflow-models/mobilenet";
 import * as tf from "@tensorflow/tfjs";
+import * as posenet from "@tensorflow-models/posenet";
 
 const sound = new Howl({
 	src: [heySound],
@@ -21,6 +22,7 @@ let dataset = [];
 function App() {
 	const video = useRef();
 	const mobilenet = useRef();
+	const net = useRef();
 	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
@@ -67,18 +69,39 @@ function App() {
 		const accuracy = (numCorrect / numExample) * 100;
 		console.log(`Với k = ${NUM_NEIGHBOR} , thuật toán có độ chính xác: ${accuracy.toFixed(2)}%`);
 	};
+	const drawImagePoint = async () => {
+		const pose = await net.current.estimateSinglePose(video.current);
+		const canvas = document.createElement("canvas");
+		canvas.width = 360;
+		canvas.height = 240;
+		video.current.appendChild(canvas);
+		const ctx = canvas.getContext("2d");
+		ctx.drawImage(video.current, 0, 0, 360, 240);
+
+		// Vẽ các điểm chính lên canvas
+		pose.keypoints.forEach((keypoint) => {
+			ctx.beginPath();
+			ctx.arc(keypoint.position.x, keypoint.position.y, 10, 0, 2 * Math.PI);
+			ctx.fillStyle = "red";
+			ctx.fill();
+		});
+		console.log(pose.keypoints);
+	};
+
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
 		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
+		await drawImagePoint();
 		console.log(result.confidences);
 		const isTouch = result.label === TOUCH_LABEL;
 		setIsTouch(isTouch);
 		if (isTouch) {
 			sound.play();
 		}
-		await sleep(2000);
-		await run();
+		await sleep(1000);
+		run();
 	};
+
 	const setupCamera = async () => {
 		return new Promise((resolve, reject) => {
 			navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
@@ -100,6 +123,7 @@ function App() {
 		try {
 			tf.loadLayersModel();
 			mobilenet.current = await mobilenetModule.load();
+			net.current = await posenet.load();
 			alert("thành công nhận diện");
 			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
 		} catch (error) {
@@ -108,11 +132,8 @@ function App() {
 	};
 	document.body.onload = async () => {
 		console.log("init");
-		setupCamera()
-			.then(async () => {
-				await loadModel();
-			})
-			.catch((error) => console.log(error));
+		setupCamera();
+		loadModel();
 	};
 	return (
 		<div className={`main ${isTouch && "touched"}`}>

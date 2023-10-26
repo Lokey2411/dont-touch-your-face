@@ -1843,6 +1843,11 @@
   resolved "https://registry.yarnpkg.com/@tensorflow-models/mobilenet/-/mobilenet-2.1.1.tgz#5b02c3e99a19534e3b303f57dccf31f85fec7683"
   integrity sha512-tv4s4UFzG74PkIwl4gT64AyRnCcNUq+s8wSzge+LN/Puc1VUuInZghrobvpNlWjZtVi1x1d1NsBD//TfOr2ssA==
 
+"@tensorflow-models/posenet@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@tensorflow-models/posenet/-/posenet-2.2.2.tgz#2abcfa33b43892135d232c9c4408a38cc8f74ba6"
+  integrity sha512-0SXIksRet/IdX7WVH+JSD6W3upkGHix1hwtd3xykIoIMGR7zQ4SC5+wZcNt9ofASyxNYQoI+tUULUo4LNw0c3w==
+
 "@tensorflow/tfjs-backend-cpu@4.11.0":
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-backend-cpu/-/tfjs-backend-cpu-4.11.0.tgz#47fde600df58790500fc318a561d2b99c6bcaccd"

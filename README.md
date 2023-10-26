@@ -1,71 +1,77 @@
-# Getting Started with Create React App
+# Hệ thống Phân tích chuyển động và tương tác ứng dụng thuật toán K-Nearest Neighbors (KNN)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Giới thiệu
 
-## Available Scripts
+Dự án được phân tích, xây dựng và triển khai bởi các thành viên thuộc lớp 63CNTT3 của trường Đại học Thủy Lợi nhằm phục vụ cho việc nghiên cứu và học tập cũng như ứng dụng trong bộ môn Học máy Machine Learning.
 
-In the project directory, you can run:
+Dự án này triển khai một hệ thống giúp phát hiện và ghi lại chuyển động bằng cách sử dụng dữ liệu từ các cảm biến hoặc video, qua đó sử dụng thuật toán K-Nearest Neighbors (KNN) để xác định xem có chạm tay lên mặt hay không bằng việc tính toán khoảng cách từ tay tới mặt của người dùng.
 
-### `npm start`
+## Cài đặt
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Chương trình có thể được clone về bằng việc sử dụng câu lệnh *[git clone https://github.com/Lokey2411/dont-touch-your-face.git]* trong Terminal của hệ điều hành
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Các dependencies được sử dụng trong project được lưu trữ qua **trình quản lý gói Yarn**, vì vậy khi cài dặt chương trình chỉ cần gõ lệnh *Yarn* để cài đặt các dependencies yêu cầu cho hệ thống, giảm tải tối đa quá trình cài đặt thư viện cần thiết
 
-### `npm test`
+## Sử dụng
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Sau khi quá trình cài đặt hoàn tất, hãy sử dụng câu lệnh *yarn start* để khởi chạy chương trình trên trình duyệt
 
-### `npm run build`
+## Phân tích dự án
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Các thông tin và phân tích chi tiết vê hệ thống có thể được theo dõi qua bản báo cáo chi tiết được đính kèm trong project. 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Bản báo cáo của dự án được đặt tên là **Machine_Learning_Report_Group3**, hoặc có thể truy cập qua đường link sau: *[https://github.com/Lokey2411/dont-touch-your-face/blob/main/Machine_Learning_Report_Group_3.pdf]*
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Cấu trúc dự án
 
-### `npm run eject`
+Project bao gồm nhiều tập tin, bao gồm **Bản báo cáo chi tiết dự án**, các tập tin kiểm thử hệ thống **data-test.docx** và **data-test.xlsx** và các folder lưu trữ khác.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Chương trình chính được lưu trữ trong thư mục **src**, bao gồm thư mục **assets** lưu trữ âm thanh và hình ảnh sử dụng trong chương trình, và thư mục **components** lưu trữ chương trình và bản CSS của hệ thống.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Nguồn thông tin tham khảo
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Quá trình xây dựng và thực hiện chương trình được hỗ trợ bởi các tài liệu sau:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+*- Giáo trình Nhập môn Học máy của Trường Đại học Thủy Lợi - tác giả Nguyễn Hữu Quỳnh*
 
-## Learn More
+*- Tài liệu về thuật toán KNN (K-Nearest Neighbors) của trang web **[Machinelearningcoban.com]***
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+*- Tài liệu về thuật toán KNN (K-Nearest Neighbors) của trang web **[Wikipedia.org]***
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+*- Khóa học về Machine Learning của **[fullstack.edu.vn]***
 
-### Code Splitting
+## Người đóng góp
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Dự án được xây dựng bởi 3 thành viên trong nhóm bao gồm: 
 
-### Analyzing the Bundle Size
+*- Hà Hải Việt*
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+*- Nguyễn Việt Anh*
 
-### Making a Progressive Web App
+*- Trần Quý Đức*
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Báo cáo lỗi
 
-### Advanced Configuration
+Nếu phát hiện bất kỳ lỗi nào phát sinh trong quá trình sử dụng hệ thống, xin hãy vui lòng thông báo cho chúng tôi thông qua tính năng **Issues**. Chúng tôi sẽ theo dõi và chỉnh sửa để phù hợp và tối ưu nhất cho quá trình sử dụng.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Yêu cầu đóng góp
 
-### Deployment
+Nếu bạn muốn đóng góp vào quá trình xây dựng và hoàn thiện dự án trong tương lai, xin hãy để lại **Pull Request**. Nếu chúng tôi nhận thấy rằng bạn phù hợp cho việc phát triển của dự án, chúng tôi sẽ sớm liên hệ với bạn.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Giấy phép
 
-### `npm run build` fails to minify
+Dự án này được thực hiện bởi 3 thành viên trong lớp 63CNTT3 của trường Đại học Thủy lợi nhằm mục đích học tập, nghiên cứu cũng như thực hành. Ngoài ra không có bất kỳ nhu cầu nào khác trong quá trình sử dụng hệ thống.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-"# dont-touch-your-face"
+Mọi thông tin và dữ liệu được hệ thống thu nhận sẽ **KHÔNG ĐƯỢC LƯU TRỮ** nhằm trục lợi phi pháp. Nếu có bất kỳ dữ liệu nào của chúng tôi được sử dụng vào các mục đích phi pháp bởi các người dùng khác trên Github, chúng tôi <ins>**hoàn toàn không đảm bảo bất kỳ trách nhiệm pháp lý nào**.</ins>
+
+## Lời cảm ơn
+
+Xin vinh danh những cá nhân sau với những đóng góp to lớn đã mang lại cho hệ thống:
+
+- Thành viên **HÀ HẢI VIỆT** đã có đóng góp lớn trong việc thực hiện quá trình lập trình hệ thống.
+
+- Thành viên **NGUYỄN VIỆT ANH** đã đóng góp trong quá trình lập trình, kiểm thử và tối ưu hóa dự án.
+
+- Thành viên **TRẦN QUÝ ĐỨC** đã phân tích, đánh giá, theo dõi kiểm thử và xây dựng các phương án phát triển.
+
+**Cảm ơn toàn thể các thành viên đã luôn cố gắng hết mình trong việc xây dựng một hệ thống nhằm phục vụ quá trình học tập, nghiên cứu và ứng dụng của chúng ta**
