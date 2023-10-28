@@ -53,21 +53,40 @@ function App() {
 			console.log("Chưa có dataset");
 			return;
 		}
-		let numCorrect = 0;
+		let statistic = {
+			numCorrect: 0,
+			numTouch: 0,
+			numCorrectTouch: 0,
+		};
 		const numExample = dataset.length;
 		for (let i = 0; i < numExample; i++) {
+			progress.current.value = ((i + 1) / numExample) * 100;
 			const example = dataset[i];
 			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
-			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR).catch((error) => console.log(error));
+			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
 			console.log(result);
-			if (result.label === example.label) {
-				numCorrect++;
+			const isTrueCase = result.label === example.label;
+			const isTouchCase = result.label === TOUCH_LABEL;
+			if (isTrueCase) {
+				statistic.numCorrect++;
+			}
+			if (isTouchCase) {
+				if (isTrueCase) statistic.numCorrectTouch++;
+				statistic.numTouch++;
 			}
 		}
-		console.log(numCorrect);
-		const accuracy = (numCorrect / numExample) * 100;
-		console.log(`Với k = ${NUM_NEIGHBOR} , thuật toán có độ chính xác: ${accuracy.toFixed(2)}%`);
+		console.log(statistic.numCorrect);
+		const accuracy = (statistic.numCorrect / numExample) * 100;
+		const sensitivity = (statistic.numTouch / numExample) * 100;
+		const specificityTouch = (statistic.numCorrectTouch / statistic.numTouch) * 100;
+		const specificityNotTouch = ((statistic.numCorrect - statistic.numCorrectTouch) / (numExample - statistic.numTouch)) * 100;
+		document.write(`
+		Các thông số hiện tại:<br/>
+		Accuracy : ${accuracy.toFixed(2)}%,<br/>
+		Recall: ${sensitivity}% với lớp ${TOUCH_LABEL} , ${100 - sensitivity}% với lớp ${NOT_TOUCH_LABEL},<br/>
+		Precision : ${specificityTouch}% với lớp ${TOUCH_LABEL}, ${specificityNotTouch}% với lớp ${NOT_TOUCH_LABEL},
+		  `);
 	};
 	const drawImagePoint = async () => {
 		const pose = await net.current.estimateSinglePose(video.current);
@@ -177,7 +196,9 @@ function App() {
 					onClick={() => calculateAccuracy()}
 					className="btn"
 				>
-					Lấy đọ chính xác
+					Lấy các thông số
+					<br />
+					DEVELOPER ONLY
 				</button>
 			</div>
 			{isTouch && (
