@@ -10,23 +10,39 @@ Dự án này triển khai một hệ thống giúp phát hiện và ghi lại c
 
 Chương trình có thể được clone về bằng việc sử dụng câu lệnh *[git clone https://github.com/Lokey2411/dont-touch-your-face.git]* trong Terminal của hệ điều hành
 
+```
+git clone https://github.com/Lokey2411/dont-touch-your-face.git
+```
+
 Các dependencies được sử dụng trong project được lưu trữ qua **trình quản lý gói Yarn**, vì vậy khi cài dặt chương trình chỉ cần gõ lệnh *Yarn* để cài đặt các dependencies yêu cầu cho hệ thống, giảm tải tối đa quá trình cài đặt thư viện cần thiết
+
+```
+yarn
+```
 
 ## Sử dụng
 
 Sau khi quá trình cài đặt hoàn tất, hãy sử dụng câu lệnh *yarn start* để khởi chạy chương trình trên trình duyệt
 
+```
+yarn start
+```
+
 ## Phân tích dự án
 
 Các thông tin và phân tích chi tiết vê hệ thống có thể được theo dõi qua bản báo cáo chi tiết được đính kèm trong project. 
 
-Bản báo cáo của dự án được đặt tên là **Machine_Learning_Report_Group3**, hoặc có thể truy cập qua đường link sau: *[https://github.com/Lokey2411/dont-touch-your-face/blob/main/Machine_Learning_Report_Group_3.pdf]*
+Bản báo cáo của dự án được lưu trữ trong tệp **Machine_Learning_Report_Group3** trong Project
 
 ## Cấu trúc dự án
 
 Project bao gồm nhiều tập tin, bao gồm **Bản báo cáo chi tiết dự án**, các tập tin kiểm thử hệ thống **data-test.docx** và **data-test.xlsx** và các folder lưu trữ khác.
 
 Chương trình chính được lưu trữ trong thư mục **src**, bao gồm thư mục **assets** lưu trữ âm thanh và hình ảnh sử dụng trong chương trình, và thư mục **components** lưu trữ chương trình và bản CSS của hệ thống.
+
+## Các thư viện sử dụng
+
+`KNN` 
 
 ## Nguồn thông tin tham khảo
 
