@@ -17,7 +17,7 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 10;
+const TRAINING_TIME = 200;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 const NUM_NEIGHBOR = 62;
 let dataset = [];
