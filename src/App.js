@@ -17,6 +17,7 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
+const classes = [NOT_TOUCH_LABEL, TOUCH_LABEL];
 const TRAINING_TIME = 10;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 const NUM_NEIGHBOR = 62;
@@ -34,6 +35,7 @@ function App() {
 	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
+	const [isAdding, setIsAdding] = useState(false);
 	const writeClassifierResult = (label) => {
 		document.getElementById("js-classifier").innerText = label;
 	};
@@ -130,8 +132,35 @@ function App() {
 		downloadLink.click();
 		document.body.removeChild(downloadLink);
 	};
+	const addExampleData = async (data, label) => {
+		console.log(data);
+		console.log(`[${label} đang check với gương mặt đẹp trai của bạn]`);
+		if (!data) {
+			alert("Vui lòng thêm dữ liệu");
+			return;
+		}
+		const numData = data.length;
+		for (let i = 0; i < numData; i++) {
+			const file = data[i];
+			const reader = new FileReader();
+			const image = document.createElement("img");
+			reader.onloadend = () => {
+				image.src = reader.result;
+				image.onload = async () => {
+					const embedding = mobilenet.current.infer(image, true);
+					progress.current.value = ((i + 1) * 100) / numData;
+					classifier.addExample(embedding, label);
+					dataset[label] = [...dataset[label], { image, label }];
+					dataset.length++;
+				};
+			};
+			reader.readAsDataURL(file);
+			await sleep(100);
+		}
+		dataset.data = [...dataset[NOT_TOUCH_LABEL], ...dataset[TOUCH_LABEL]];
+	};
 	const calculateAccuracy = async () => {
-		if (dataset.length === 0) {
+		if (dataset.data.length === 0) {
 			//nếu chưa có dataset thì dừng hàm
 			console.log("Chưa có dataset");
 			return;
@@ -141,10 +170,10 @@ function App() {
 			numTouch: 0,
 			numCorrectTouch: 0,
 		};
-		const numExample = dataset.length;
+		const numExample = dataset.data.length;
 		for (let i = 0; i < numExample; i++) {
 			progress.current.value = ((i + 1) / numExample) * 100;
-			const example = dataset[i];
+			const example = dataset.data[i];
 			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
 			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
@@ -248,12 +277,64 @@ function App() {
 			/>
 			<div className="control">
 				<button
+					className="btn addData"
+					onClick={() => {
+						setIsAdding((prevState) => !prevState);
+					}}
+				>
+					Thêm các dataset có sẵn
+					<div
+						className="classes"
+						style={{
+							display: isAdding ? "block" : "none",
+						}}
+						onClick={(event) => {
+							event.stopPropagation();
+						}}
+					>
+						Chọn nhãn của dữ liệu:
+						{classes.map((label) => (
+							<button
+								key={label}
+								style={{ borderRadius: 16, marginLeft: 8, padding: 4 }}
+								onClick={(event) => {
+									event.preventDefault();
+									const uploadImage = document.createElement("input");
+									uploadImage.type = "file";
+									uploadImage.multiple = true;
+									uploadImage.onchange = (e) => {
+										if (!e.target || !e.target.files[0]) {
+											alert("Bạn chưa thêm dữ liệu");
+											return;
+										}
+										const numFiles = e.target.files.length;
+										for (let i = 0; i < numFiles; i++) {
+											const file = e.target.files[i];
+											const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
+											if (!validFileTypes.includes(file.type)) {
+												alert("Chỉ chấp nhận file .png, .jpg hoặc .jpeg");
+												return;
+											}
+										}
+										addExampleData(e.target.files, label);
+									};
+									document.body.appendChild(uploadImage);
+									uploadImage.click();
+									document.body.removeChild(uploadImage);
+								}}
+							>
+								{label}
+							</button>
+						))}
+					</div>
+				</button>
+				<button
 					className="btn"
 					onClick={async () => {
 						await train(NOT_TOUCH_LABEL);
 					}}
 				>
-					Không chạm lên mặt để app đọc chuyển động của bạn
+					Huấn luyện mô hình chuyển động không chạm lên mặt
 				</button>
 				<button
 					className="btn"
@@ -262,7 +343,7 @@ function App() {
 						await train(TOUCH_LABEL);
 					}}
 				>
-					Chạm tay lên mặt để app đọc chuyển động của bạn
+					Huấn luyện mô hình chuyển động chạm mặt
 				</button>
 				<button
 					className="btn"
@@ -311,7 +392,7 @@ function App() {
 				style={{
 					height: 50,
 					width: "20%",
-					position: "absolute",
+					// position: "absolute",
 					bottom: 0,
 				}}
 				ref={progress}
