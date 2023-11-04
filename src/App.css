@@ -108,3 +108,8 @@ button:hover {
   background-image: linear-gradient(45deg, red, yellow);
   color: wheat;
 }
+.box {
+  background-color: white;
+  width: 55%;
+  margin: auto;
+}

@@ -204,6 +204,9 @@ function App() {
 		const specificityNotTouch = ((statistic.numCorrect - statistic.numCorrectTouch) / (numExample - statistic.numTouch)) * 100;
 		// lấy số lần đúng của not_touch chia cho số lần not_touch
 		const p = document.createElement("p"); //Tạo ra thẻ chứa các thông số
+		// Tạo thẻ div
+		const div = document.createElement("div");
+		div.className = "box";
 		p.className = "statistic"; // class của thẻ này là statistic
 		p.innerHTML = `
 		Các thông số hiện tại:<br/>
@@ -212,7 +215,11 @@ function App() {
 		Precision : ${specificityTouch}% với lớp ${TOUCH_LABEL}, ${specificityNotTouch}% với lớp ${NOT_TOUCH_LABEL},
       `; //Ghi ra thẻ p kia
 
-		document.body.appendChild(p); // Thêm vào trong document
+		// Thêm thẻ p vào trong thẻ div
+		div.appendChild(p);
+
+		// Thêm div vào document
+		document.body.appendChild(div);
 	};
 	//Ghi các điểm ảnh lên console
 	const drawImagePoint = async () => {
@@ -235,6 +242,7 @@ function App() {
 	};
 
 	const run = async () => {
+		if (isRunning) return; //Dừng chương trình khi isRunning
 		const embedding = mobilenet.current.infer(video.current, true); // mô hình hóa hình ảnh của camera
 		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR); // dự đoán nhãn của hình ảnh
 		await drawImagePoint().catch((error) => console.log(error)); // Lấy các hình ảnh
@@ -244,6 +252,8 @@ function App() {
 		if (isTouch) {
 			sound.play(); // Nếu nhãn là chạm thì mở âm thanh
 		}
+		await sleep(1000); // Đợi 1s sau mới dự đoán
+		run();
 	};
 
 	const setupCamera = async () => {
@@ -364,14 +374,10 @@ function App() {
 					className="btn"
 					id="js-run"
 					onClick={() => {
-						isRunning = true;
-						setInterval(() => {
-							run().catch((error) => {
-								alert("Máy chưa có dữ liệu. Hãy thêm dữ liệu vào máy");
-								console.log(error);
-							});
-							if (!isRunning) clearTimeout();
-						}, 1000);
+						run().catch((error) => {
+							alert("Máy chưa có dữ liệu. Hãy thêm dữ liệu vào máy");
+							console.log(error);
+						});
 					}}
 				>
 					Chạy ở đây
@@ -385,10 +391,7 @@ function App() {
 					DEVELOPER ONLY
 				</button>
 				<button
-					onClick={() => {
-						window.location.reload();
-						// isRunning = false;
-					}}
+					onClick={() => window.location.reload()}
 					className="stop btn"
 				>
 					Dừng chương trình
