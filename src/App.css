@@ -16,7 +16,7 @@
 	flex-direction: column;
 	width: auto;
 	justify-content: space-between;
-	height: 100px;
+	/* height: 100px; */
 }
 .btn {
 	padding: 4px 16px;
@@ -28,6 +28,13 @@
 .btn:hover {
 	cursor: pointer;
 	opacity: 0.6;
+}
+
+.add-image {
+	background-color: #f0f0f0;
+	border-radius: 888px;
+	border: 2px solid #000;
+	padding: 16px;
 }
 
 .main.touch {
