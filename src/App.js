@@ -14,7 +14,6 @@ const sound = new Howl({
   src: [heySound],
 });
 
-
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
 const classes = [NOT_TOUCH_LABEL, TOUCH_LABEL];
