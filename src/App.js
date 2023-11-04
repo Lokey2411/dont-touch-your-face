@@ -13,12 +13,10 @@ const sound = new Howl({
 	src: [heySound],
 });
 
-// sound.play();
-
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
 const classes = [NOT_TOUCH_LABEL, TOUCH_LABEL];
-const TRAINING_TIME = 10;
+const TRAINING_TIME = 200;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 const NUM_NEIGHBOR = 62;
 let dataset = {
@@ -105,12 +103,16 @@ function App() {
 	const training = (label) => {
 		return new Promise(async (resolve) => {
 			const image = captureImage(video.current); // Chụp ảnh từ video
-			const embedding = mobilenet.current.infer(video.current, true);
-			classifier.addExample(embedding, label);
-			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
-			dataset.length++;
-			await sleep(100);
-			resolve();
+			image.src = "your_image_url";
+			image.onload = async () => {
+				const embedding = mobilenet.current.infer(image, true);
+				// rest of your code
+				classifier.addExample(embedding, label);
+				dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
+				dataset.length++;
+				await sleep(100);
+				resolve();
+			};
 		});
 	};
 
