@@ -33,7 +33,8 @@ function App() {
 	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
-	const [isAdding, setIsAdding] = useState(false);
+	const [isRunning, setIsRunning] = useState(false);
+	const [isAdding, setIsAdding] = useState(false); //Ẩn hiện các nút thêm ví dụ
 	//Viết vào thẻ có id "js-classifier"
 	const writeClassifierResult = (label) => {
 		document.getElementById("js-classifier").innerText = label;
@@ -51,6 +52,7 @@ function App() {
 			writeClassifierResult("Vui lòng thêm file");
 			return;
 		}
+		//Xác minh file ảnh
 		const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
 		if (!validFileTypes.includes(file.type)) {
 			alert("Chỉ chấp nhận file .png, .jpg hoặc .jpeg");
@@ -58,26 +60,27 @@ function App() {
 			return;
 		}
 		//ghi file qua reader
-		const reader = new FileReader();
-		const image = document.createElement("img");
+		const reader = new FileReader(); //khai báo reader
+		const image = document.createElement("img"); //Tạo ra thẻ img để xác minh
 		image.width = 360;
 		image.height = 240;
+		//Xử lý lỗi
 		reader.onerror = (error) => {
 			alert(error);
 			writeClassifierResult("");
 		};
 		reader.onloadend = () => {
-			image.src = reader.result;
+			image.src = reader.result; //Sau khi load xong thi lưu cái kết quả vô cái image.src
 			image.onload = async () => {
-				const embedding = mobilenet.current.infer(image, true);
+				const embedding = mobilenet.current.infer(image, true); // infer cái ảnh ra
 				const result = await classifier.predictClass(embedding, NUM_NEIGHBOR).catch(() => {
-					writeClassifierResult("Máy không thể xác định");
+					writeClassifierResult("Máy không thể xác định"); //Nếu có lỗi
 				});
-				console.log(result);
-				writeClassifierResult("Máy đã xác định: Hình ảnh bạn đã đưa ra thuộc lớp " + result.label);
+				console.log(result); //Debug
+				writeClassifierResult("Máy đã xác định: Hình ảnh bạn đã đưa ra thuộc lớp " + result.label); //Viết vô trong cái box
 			};
 		};
-
+		//Gọi reader
 		reader.readAsDataURL(file);
 	};
 
@@ -95,6 +98,7 @@ function App() {
 	const downloadImages = async (images, label, event) => {
 		event.preventDefault();
 		const zip = new JSZip();
+		//Cho các ảnh vô file zip
 		images.forEach((image, index) => {
 			const imgData = image.split(",")[1];
 			zip.file(`image_${index}.png`, imgData, { base64: true });
@@ -105,10 +109,10 @@ function App() {
 
 	const training = (label) => {
 		return new Promise(async (resolve) => {
-			const image = captureImage(video.current); // Chụp ảnh từ video
-			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
-			dataset.length++;
-			await sleep(100);
+			const image = captureImage(video.current); // Chụp ảnh từ video, lưu vô file zip
+			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh vô dataset[label] để phân biệt giữa dataset của touch và not_touch
+			dataset.length++; // + số phần tử của dataset
+			await sleep(100); //dừng khoảng 0.1s sau khi làm xong
 			resolve();
 		});
 	};
@@ -116,34 +120,35 @@ function App() {
 	const train = async (label) => {
 		console.log(`[${label} đang check với gương mặt đẹp trai của bạn]`);
 		for (let i = 0; i < TRAINING_TIME; i++) {
-			console.log(`progress ${progress.current.value} %`);
-			await training(label, i);
+			console.log(`progress ${progress.current.value} %`); //console log cái tiến trình
+			await training(label);
 			progress.current.value = ((i + 1) * 100) / TRAINING_TIME;
 		}
 		console.log("máy đã học xong");
 		//Thêm vào dataset
 		dataset.data = [...dataset[NOT_TOUCH_LABEL], ...dataset[TOUCH_LABEL]];
-		const images = dataset[label].map((data) => data.image);
+		const images = dataset[label].map((data) => data.image); //Lấy về các hình ảnh của lớp label
 		//Download về
-		const downloadLink = document.createElement("button");
-		downloadLink.onclick = (event) => downloadImages(images, label, event);
-		downloadLink.innerText = "Download Dataset";
+		const downloadLink = document.createElement("button"); // tạo ra NodeElement button
+		downloadLink.onclick = (event) => downloadImages(images, label, event); //lấy hàm onClick xử lý sự kiện gọi hàm downloadImages
+		//gọi hàm onClick
 		document.body.appendChild(downloadLink);
 		downloadLink.click();
 		document.body.removeChild(downloadLink);
 	};
-	//Thêm các ví dụ thông qua các nút
+	//Thêm các ví dụ thông qua các button
 	const addExampleData = async (data, label) => {
 		console.log(data);
 		console.log(`[${label} đang check với gương mặt đẹp trai của bạn]`);
 		if (!data) {
+			//Nếu không có data
 			alert("Vui lòng thêm dữ liệu");
 			return;
 		}
 		const numData = data.length;
 		for (let i = 0; i < numData; i++) {
 			const file = data[i];
-			//Đọc file
+			//Đọc file như thằng ở trên
 			const reader = new FileReader();
 			const image = document.createElement("img");
 			reader.onloadend = () => {
@@ -151,8 +156,8 @@ function App() {
 				image.onload = async () => {
 					const embedding = mobilenet.current.infer(image, true);
 					progress.current.value = ((i + 1) * 100) / numData;
-					classifier.addExample(embedding, label);
-					dataset[label] = [...dataset[label], { image, label }];
+					classifier.addExample(embedding, label); // Thêm ví dụ vào trong dataset
+					dataset[label] = [...dataset[label], { image, label }]; // Thêm ví dụ vào trong dataset
 					dataset.length++;
 				};
 			};
@@ -174,18 +179,20 @@ function App() {
 		};
 		const numExample = dataset.data.length;
 		for (let i = 0; i < numExample; i++) {
-			progress.current.value = ((i + 1) / numExample) * 100;
-			const example = dataset.data[i];
+			progress.current.value = ((i + 1) / numExample) * 100; //update tiến trình
+			const example = dataset.data[i]; //lấy về dataset
 			console.log(example);
 			const embedding = mobilenet.current.infer(example.image, true);
-			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
+			const result = await classifier.predictClass(embedding, NUM_NEIGHBOR); //dự đoán nhãn của ví dụ
 			console.log(result);
-			const isTrueCase = result.label === example.label;
-			const isTouchCase = result.label === TOUCH_LABEL;
+			const isTrueCase = result.label === example.label; //nếu đây là trường hợp đúng
+			const isTouchCase = result.label === TOUCH_LABEL; //nếu đây là trường hợp chạm vào mặt
 			if (isTrueCase) {
+				//Nếu đúng thì cộng lên số lần đúng
 				statistic.numCorrect++;
 			}
 			if (isTouchCase) {
+				//Nếu đây là trường hợp chạm vào mặt. Đúng thì + cái numCorrectTouch
 				if (isTrueCase) statistic.numCorrectTouch++;
 				statistic.numTouch++;
 			}
@@ -196,16 +203,16 @@ function App() {
 		const specificityTouch = (statistic.numCorrectTouch / statistic.numTouch) * 100; //recall của lớp touch
 		const specificityNotTouch = ((statistic.numCorrect - statistic.numCorrectTouch) / (numExample - statistic.numTouch)) * 100;
 		// lấy số lần đúng của not_touch chia cho số lần not_touch
-		const p = document.createElement("p");
-		p.className = "statistic";
+		const p = document.createElement("p"); //Tạo ra thẻ chứa các thông số
+		p.className = "statistic"; // class của thẻ này là statistic
 		p.innerHTML = `
 		Các thông số hiện tại:<br/>
 		Accuracy : ${accuracy.toFixed(2)}%,<br/>
 		Recall: ${sensitivity}% với lớp ${TOUCH_LABEL} , ${100 - sensitivity}% với lớp ${NOT_TOUCH_LABEL},<br/>
 		Precision : ${specificityTouch}% với lớp ${TOUCH_LABEL}, ${specificityNotTouch}% với lớp ${NOT_TOUCH_LABEL},
-      `;
+      `; //Ghi ra thẻ p kia
 
-		document.body.appendChild(p);
+		document.body.appendChild(p); // Thêm vào trong document
 	};
 	//Ghi các điểm ảnh lên console
 	const drawImagePoint = async () => {
@@ -228,22 +235,23 @@ function App() {
 	};
 
 	const run = async () => {
-		const embedding = mobilenet.current.infer(video.current, true);
-		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
-		await drawImagePoint().catch((error) => console.log(error));
+		if (isRunning) return;
+		const embedding = mobilenet.current.infer(video.current, true); // mô hình hóa hình ảnh của camera
+		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR); // dự đoán nhãn của hình ảnh
+		await drawImagePoint().catch((error) => console.log(error)); // Lấy các hình ảnh
 		console.log(result.confidences);
 		const isTouch = result.label === TOUCH_LABEL;
 		setIsTouch(isTouch);
 		if (isTouch) {
-			sound.play();
+			sound.play(); // Nếu nhãn là chạm thì mở âm thanh
 		}
-		await sleep(1000);
+		await sleep(1000); // Đợi 1s sau mới dự đoán
 		run();
 	};
 
 	const setupCamera = async () => {
 		return new Promise((resolve, reject) => {
-			navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+			navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia; // Lấy về camera
 			if (navigator.getUserMedia) {
 				navigator.getUserMedia(
 					{
@@ -258,11 +266,12 @@ function App() {
 			} else reject();
 		});
 	};
+	//Tải các model
 	const loadModel = async () => {
 		try {
 			tf.loadLayersModel();
-			mobilenet.current = await mobilenetModule.load();
-			net.current = await posenet.load();
+			mobilenet.current = await mobilenetModule.load(); //tải mobilenet
+			net.current = await posenet.load(); //tải posenet
 			alert("thành công tải các mô hình");
 			console.log("Cấm chạm tay lên mặt và bấm vào nút đầu tiên");
 		} catch (error) {
@@ -287,14 +296,14 @@ function App() {
 				<button
 					className="btn addData"
 					onClick={() => {
-						setIsAdding((prevState) => !prevState);
+						setIsAdding((prevState) => !prevState); //toggle thằng adding
 					}}
 				>
 					Thêm các dataset có sẵn
 					<div
 						className="classes"
 						style={{
-							display: isAdding ? "block" : "none",
+							display: isAdding ? "block" : "none", //nếu isAdding là true thì hiện còn không thì ẩn
 						}}
 						onClick={(event) => {
 							event.stopPropagation();
@@ -358,6 +367,7 @@ function App() {
 					className="btn"
 					id="js-run"
 					onClick={() => {
+						setIsRunning(true);
 						run().catch((error) => {
 							alert("Máy chưa có dữ liệu. Hãy thêm dữ liệu vào máy");
 							console.log(error);
@@ -374,6 +384,13 @@ function App() {
 					<br />
 					DEVELOPER ONLY
 				</button>
+				<button
+					onClick={() => setIsRunning(false)}
+					className="stop"
+				>
+					Dừng chương trình
+				</button>
+
 				<div className="add-image">
 					<p className="add-image-title">Thêm hình ảnh bạn muốn classify</p>
 					<input
