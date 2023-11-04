@@ -177,7 +177,7 @@ function App() {
 		canvas.width = 360;
 		canvas.height = 240;
 		video.current.appendChild(canvas);
-		const ctx = canvas.getContext("webgpu");
+		const ctx = canvas.getContext("2d");
 
 		ctx.drawImage(video.current, 0, 0, 360, 240);
 		// Vẽ các điểm chính lên canvas
