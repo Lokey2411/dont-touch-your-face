@@ -103,8 +103,6 @@ function App() {
 	const training = (label) => {
 		return new Promise(async (resolve) => {
 			const image = captureImage(video.current); // Chụp ảnh từ video
-			// const embedding = mobilenet.current.infer(video.current, true);
-			// classifier.addExample(embedding, label);
 			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
 			dataset.length++;
 			await sleep(100);
@@ -191,12 +189,15 @@ function App() {
 		const sensitivity = (statistic.numTouch / numExample) * 100;
 		const specificityTouch = (statistic.numCorrectTouch / statistic.numTouch) * 100;
 		const specificityNotTouch = ((statistic.numCorrect - statistic.numCorrectTouch) / (numExample - statistic.numTouch)) * 100;
-		document.write(`
+		const p = document.createElement("p");
+		p.innerHTML = `
 		Các thông số hiện tại:<br/>
 		Accuracy : ${accuracy.toFixed(2)}%,<br/>
 		Recall: ${sensitivity}% với lớp ${TOUCH_LABEL} , ${100 - sensitivity}% với lớp ${NOT_TOUCH_LABEL},<br/>
 		Precision : ${specificityTouch}% với lớp ${TOUCH_LABEL}, ${specificityNotTouch}% với lớp ${NOT_TOUCH_LABEL},
-		  `);
+      `;
+
+		document.body.appendChild(p);
 	};
 	const drawImagePoint = async () => {
 		const pose = await net.current.estimateSinglePose(video.current);
