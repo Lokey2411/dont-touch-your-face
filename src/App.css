@@ -112,4 +112,6 @@ button:hover {
   background-color: white;
   width: 55%;
   margin: auto;
+  border-radius: 20px;
+  box-shadow: 12px 12px 2px 1px ;
 }
