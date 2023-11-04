@@ -17,10 +17,15 @@ const sound = new Howl({
 
 const NOT_TOUCH_LABEL = "not_touch";
 const TOUCH_LABEL = "touch";
-const TRAINING_TIME = 200;
+const TRAINING_TIME = 10;
 const ERROR_MESSAGE = "Bỏ tay ra đi. Thứ tôi muốn thấy là nụ cười của em";
 const NUM_NEIGHBOR = 62;
-let dataset = [];
+let dataset = {
+	[NOT_TOUCH_LABEL]: [],
+	[TOUCH_LABEL]: [],
+	length: 0,
+	data: [],
+};
 
 function App() {
 	const video = useRef();
@@ -29,7 +34,6 @@ function App() {
 	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
-	// const [classifierLabel, setClassifierLabel] = useState("");
 	const writeClassifierResult = (label) => {
 		document.getElementById("js-classifier").innerText = label;
 	};
@@ -40,6 +44,17 @@ function App() {
 			return;
 		}
 		const file = event.target.files[0];
+		if (!file) {
+			alert("Vui lòng thêm file");
+			writeClassifierResult("Vui lòng thêm file");
+			return;
+		}
+		const validFileTypes = ["image/jpeg", "image/png", "image/jpg"];
+		if (!validFileTypes.includes(file.type)) {
+			alert("Chỉ chấp nhận file .png, .jpg hoặc .jpeg");
+			writeClassifierResult("Không Chấp nhận file");
+			return;
+		}
 		const reader = new FileReader();
 		const image = document.createElement("img");
 		image.width = 360;
@@ -53,12 +68,10 @@ function App() {
 			image.onload = async () => {
 				const embedding = mobilenet.current.infer(image, true);
 				const result = await classifier.predictClass(embedding, NUM_NEIGHBOR).catch(() => {
-					// setClassifierLabel("Máy không thể xác định");
 					writeClassifierResult("Máy không thể xác định");
 				});
 				console.log(result);
 				writeClassifierResult("Máy đã xác định: Hình ảnh bạn đã đưa ra thuộc lớp " + result.label);
-				// setClassifierLabel(result?.label);
 			};
 		};
 
@@ -92,7 +105,8 @@ function App() {
 			const image = captureImage(video.current); // Chụp ảnh từ video
 			const embedding = mobilenet.current.infer(video.current, true);
 			classifier.addExample(embedding, label);
-			dataset = [...dataset, { image, label }]; // Lưu ảnh thay vì toàn bộ video
+			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
+			dataset.length++;
 			await sleep(100);
 			resolve();
 		});
@@ -107,7 +121,8 @@ function App() {
 			// setProgress(((i + 1) / TRAINING_TIME) * 100);
 		}
 		console.log("máy đã học xong");
-		const images = dataset.map((data) => data.image);
+		dataset.data = [...dataset[NOT_TOUCH_LABEL], ...dataset[TOUCH_LABEL]];
+		const images = dataset[label].map((data) => data.image);
 		const downloadLink = document.createElement("button");
 		downloadLink.onclick = (event) => downloadImages(images, label, event);
 		downloadLink.innerText = "Download Dataset";
@@ -162,7 +177,7 @@ function App() {
 		canvas.width = 360;
 		canvas.height = 240;
 		video.current.appendChild(canvas);
-		const ctx = canvas.getContext("webgpu");
+		const ctx = canvas.getContext("2d");
 
 		ctx.drawImage(video.current, 0, 0, 360, 240);
 		// Vẽ các điểm chính lên canvas
@@ -178,7 +193,7 @@ function App() {
 	const run = async () => {
 		const embedding = mobilenet.current.infer(video.current, true);
 		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR);
-		await drawImagePoint();
+		await drawImagePoint().catch((error) => console.log(error));
 		console.log(result.confidences);
 		const isTouch = result.label === TOUCH_LABEL;
 		setIsTouch(isTouch);
@@ -276,7 +291,6 @@ function App() {
 						placeholder="Thêm hình ảnh bạn muốn classify"
 						onChange={handleAddAvailImage}
 					/>
-					{/*classifierLabel && <p>Máy đã xác minh: Hình ảnh bạn đã chọn thuộc lớp: {classifierLabel}</p>*/}
 					<p id="js-classifier"></p>
 				</div>
 			</div>
