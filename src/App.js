@@ -103,16 +103,12 @@ function App() {
 	const training = (label) => {
 		return new Promise(async (resolve) => {
 			const image = captureImage(video.current); // Chụp ảnh từ video
-			image.src = "your_image_url";
-			image.onload = async () => {
-				const embedding = mobilenet.current.infer(image, true);
-				// rest of your code
-				classifier.addExample(embedding, label);
-				dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
-				dataset.length++;
-				await sleep(100);
-				resolve();
-			};
+			// const embedding = mobilenet.current.infer(video.current, true);
+			// classifier.addExample(embedding, label);
+			dataset[label] = [...dataset[label], { image, label }]; // Lưu ảnh thay vì toàn bộ video
+			dataset.length++;
+			await sleep(100);
+			resolve();
 		});
 	};
 
