@@ -235,7 +235,7 @@ function App() {
 	};
 
 	const run = async () => {
-		if (isRunning) return;
+		if (isRunning) return; //Dừng chương trình khi isRunning
 		const embedding = mobilenet.current.infer(video.current, true); // mô hình hóa hình ảnh của camera
 		const result = await classifier.predictClass(embedding, NUM_NEIGHBOR); // dự đoán nhãn của hình ảnh
 		await drawImagePoint().catch((error) => console.log(error)); // Lấy các hình ảnh
@@ -386,7 +386,7 @@ function App() {
 				</button>
 				<button
 					onClick={() => setIsRunning(false)}
-					className="stop"
+					className="stop btn"
 				>
 					Dừng chương trình
 				</button>
