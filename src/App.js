@@ -29,7 +29,10 @@ function App() {
 	const progress = useRef();
 	const classifier = knnClassifier.create();
 	const [isTouch, setIsTouch] = useState(false);
-	const [classifierLabel, setClassifierLabel] = useState("");
+	// const [classifierLabel, setClassifierLabel] = useState("");
+	const writeClassifierResult = (label) => {
+		document.getElementById("js-classifier").innerText = label;
+	};
 	const handleAddAvailImage = async (event) => {
 		// alert(dataset);
 		if (dataset.length === 0) {
@@ -41,15 +44,21 @@ function App() {
 		const image = document.createElement("img");
 		image.width = 360;
 		image.height = 240;
+		reader.onerror = (error) => {
+			alert(error);
+			writeClassifierResult("");
+		};
 		reader.onloadend = () => {
 			image.src = reader.result;
 			image.onload = async () => {
 				const embedding = mobilenet.current.infer(image, true);
 				const result = await classifier.predictClass(embedding, NUM_NEIGHBOR).catch(() => {
-					setClassifierLabel("Máy không thể xác định");
+					// setClassifierLabel("Máy không thể xác định");
+					writeClassifierResult("Máy không thể xác định");
 				});
 				console.log(result);
-				setClassifierLabel(result?.label);
+				writeClassifierResult("Máy đã xác định: Hình ảnh bạn đã đưa ra thuộc lớp " + result.label);
+				// setClassifierLabel(result?.label);
 			};
 		};
 
@@ -245,7 +254,7 @@ function App() {
 					id="js-run"
 					onClick={() => {
 						run().catch((error) => {
-							alert("Máy chưa được học, hãy để cho máy học rồi mới chạy");
+							alert("Máy chưa có dữ liệu. Hãy thêm dữ liệu vào máy");
 							console.log(error);
 						});
 					}}
@@ -267,7 +276,8 @@ function App() {
 						placeholder="Thêm hình ảnh bạn muốn classify"
 						onChange={handleAddAvailImage}
 					/>
-					{classifierLabel && <p>Máy đã xác minh: Hình ảnh bạn đã chọn thuộc lớp: {classifierLabel}</p>}
+					{/*classifierLabel && <p>Máy đã xác minh: Hình ảnh bạn đã chọn thuộc lớp: {classifierLabel}</p>*/}
+					<p id="js-classifier"></p>
 				</div>
 			</div>
 			{isTouch && (
